@@ -741,7 +741,6 @@ class Scalding(
       case Left(errs) =>
         prepareState.fail(FlowPlanException(errs))
       case Right((ts, flowOpt)) =>
-        flowOpt.foreach(flow => mutate(flow))
         prepareState.willAccept(ts) match {
           case Right(runningState) =>
             try {
@@ -750,6 +749,7 @@ class Scalding(
                   Scalding.logger.warn("No Sinks were planned into flows. Waiting state is probably out of sync with stores. Proceeding with NO-OP.")
                   runningState.succeed
                 case Some(flow) =>
+                  mutate(flow)
                   options.get(jobName).foreach { jopt =>
                     jopt.get[WriteDot].foreach { o => flow.writeDOT(o.filename) }
                     jopt.get[WriteStepsDot].foreach { o => flow.writeStepsDOT(o.filename) }
